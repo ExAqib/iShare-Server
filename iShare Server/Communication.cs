@@ -55,6 +55,15 @@ namespace iShare_Server
                         break;
 
                     }
+                    if (message == "CLOSE_CONNECTION")
+                    {
+                        InformClient(Mobile_Stream);
+
+                        Console.Write("\n\t Recived CLOSE_CONNECTION Message.");
+                        //PC.Close();
+                        return true;
+
+                    }
                     else if (message == "CLIENT_LEFT_ACKNOWLEDGEMENT")
                     {
                         // TODO: If PC has left, what to do with mobile
@@ -82,7 +91,7 @@ namespace iShare_Server
                         try
                         {
                             Mobile_Stream.WriteLine(message);
-                            Console.Write("\nMessage Send  ");
+                            Console.Write("\nMessage has been Send  ");
                         }
                         catch (Exception e)
                         {

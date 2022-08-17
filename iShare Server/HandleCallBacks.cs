@@ -245,11 +245,11 @@ namespace iShare_Server
         {
             while (client.Connected)
             {
-                Console.Write("\nServer Waiting for request");
+                Console.Write("\nServer Waiting for request to make connection");
                 try
                 {
                     string request = streamReader.ReadLine();
-                    Console.Write("\nRecieved " + request + " Request");
+                    Console.Write("\nRecieved (for Connection)" + request + " Request");
 
                     if (request == null)
                     {
