@@ -9,15 +9,15 @@ namespace iShare_Server
         Socket PC;
         string ID;
         string Password;
-        string UniqueID;
+        string Name;
         EndPoint endPoint;
-        public ClientData(Socket pC, string iD, string password, string uniqueID)
+        public ClientData(Socket pC, string iD, string password ,string name)
         {
             PC = pC;
             ID = iD;
             Password = password;
             endPoint = pC.RemoteEndPoint;
-            UniqueID = uniqueID;    
+            Name = name;
         }
 
         public bool Equal(string iD, string password)
@@ -40,10 +40,13 @@ namespace iShare_Server
         {
             return PC;
         }
-        public string GetUniqueID()
+      
+        public string GetName()
         {
-            return UniqueID;
+            return Name;
         }
+
+        public string GetID() { return ID; }
 
     }
 

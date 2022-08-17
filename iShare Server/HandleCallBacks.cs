@@ -130,9 +130,10 @@ namespace iShare_Server
             string ID = streamReader.ReadLine();
             string Password = streamReader.ReadLine();
             string UniqueID = streamReader.ReadLine();
-            Console.Write("\nID: " + ID + "\nPassword " + Password + "\nUnique ID " + UniqueID);
+            string Name = streamReader.ReadLine();
+            Console.Write("\nID: " + ID + "\nPassword " + Password +  "\nName" + Name);
 
-            ClientData clientData = new ClientData(client, ID, Password, UniqueID);
+            ClientData clientData = new ClientData(client, ID, Password, Name);
             Server.Connections.Add(clientData);
         }
         void StartCommunication()
@@ -199,8 +200,45 @@ namespace iShare_Server
                 }
                 Count++;
             }
-
             return null;
+        }
+
+        void ConnectByID()
+        {
+            string ID = streamReader.ReadLine();
+
+            Console.Write("\nMobile Send ID " + ID);
+            int Count = 0;
+
+            foreach (ClientData clientData in Server.Connections)
+            {
+                if (clientData.GetID()==ID)
+                {
+                    try
+                    {
+                        StreamWriter sr = new StreamWriter(new NetworkStream(clientData.GetSocket()));
+                        sr.WriteLine("$PING$");
+                        sr.Flush();
+                        streamWriter.WriteLine("SUCCESS");
+                        PcSocket= clientData.GetSocket();
+                        StartCommunication();
+                        return;
+                    }
+                    catch (IOException)
+                    {
+                        Console.Write("\n IOException occured. The client had left. Checking If client is available now or not");
+                        Server.Connections.RemoveAt(Count);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.Write("\n Exception occured. " + e);
+                    }
+                }
+                Count++;
+            }
+            Console.Write("\nSending ERROR Message to cLient as no Client found for the given Unique ID");
+            streamWriter.WriteLine("ERROR");
+            Start();
         }
 
         public void Start()
@@ -219,9 +257,16 @@ namespace iShare_Server
                         client.Close();
                         break;
                     }
-                    if (request==RequestCodes.findByIdPassword)
+                    else if (request==RequestCodes.findByIdPassword)
                     {
-                        HandleMobile();
+                        //HandleMobile();
+                        ConnectByID();
+
+                        return;
+                        //ToDo: What to do next
+                    }else if (request==RequestCodes.findByID)
+                    {
+                        ConnectByID();
                         return;
                         //ToDo: What to do next
                     }

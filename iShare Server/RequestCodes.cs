@@ -9,5 +9,6 @@ namespace iShare_Server
     internal static class RequestCodes
     {
         public const string findByIdPassword = "_find_by_id_password_";
+        public const string findByID = "_find_by_id_";
     }
 }
