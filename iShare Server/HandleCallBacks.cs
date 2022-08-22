@@ -112,7 +112,7 @@ namespace iShare_Server
                     streamWriter.WriteLine("SUCCESS");
                     StartCommunication();
                 }
-               
+
             }
             catch (IOException e)
             {
@@ -131,7 +131,7 @@ namespace iShare_Server
             string Password = streamReader.ReadLine();
             string UniqueID = streamReader.ReadLine();
             string Name = streamReader.ReadLine();
-            Console.Write("\nID: " + ID + "\nPassword " + Password +  "\nName" + Name);
+            Console.Write("\nID: " + ID + "\nPassword " + Password + "\nName" + Name);
 
             ClientData clientData = new ClientData(client, ID, Password, Name);
             Server.Connections.Add(clientData);
@@ -160,7 +160,7 @@ namespace iShare_Server
                 if (communicate.sendMessages())
                 {
                     Console.WriteLine("\n communicate.sendMessages() has returned ");
-                   // HandleMobile();
+                    // HandleMobile();
                 }
             });
             PcToMobile.Start();
@@ -212,7 +212,7 @@ namespace iShare_Server
 
             foreach (ClientData clientData in Server.Connections)
             {
-                if (clientData.GetID()==ID)
+                if (clientData.GetID() == ID)
                 {
                     try
                     {
@@ -220,7 +220,7 @@ namespace iShare_Server
                         sr.WriteLine("$PING$");
                         sr.Flush();
                         streamWriter.WriteLine("SUCCESS");
-                        PcSocket= clientData.GetSocket();
+                        PcSocket = clientData.GetSocket();
                         StartCommunication();
                         return;
                     }
@@ -257,37 +257,38 @@ namespace iShare_Server
                         client.Close();
                         break;
                     }
-                    else if (request==RequestCodes.findByIdPassword)
+                    else if (request == RequestCodes.findByIdPassword)
                     {
                         //HandleMobile();
                         ConnectByID();
 
                         return;
                         //ToDo: What to do next
-                    }else if (request==RequestCodes.findByID)
+                    }
+                    else if (request == RequestCodes.findByID)
                     {
                         ConnectByID();
                         return;
                         //ToDo: What to do next
                     }
-                   /* else if (request.Equals("driveDirectories"))
-                    {
-                        //First send driveDirectories message, then drive name (c:/) from client
-                        sendDriveDirectories(server);
-                    }
-                    else if (request.Equals("subDirectories"))
-                    {
-                        sendSubDirectories(server);
-                    }
-                    else if (request.Equals("downloadFile"))
-                    {
-                        SendFile_3(server);
-                    }
-                    else if (request.Equals("downloadFileFast"))
-                    {
-                        SendFile_2(server);
-                    }
-                   */
+                    /* else if (request.Equals("driveDirectories"))
+                     {
+                         //First send driveDirectories message, then drive name (c:/) from client
+                         sendDriveDirectories(server);
+                     }
+                     else if (request.Equals("subDirectories"))
+                     {
+                         sendSubDirectories(server);
+                     }
+                     else if (request.Equals("downloadFile"))
+                     {
+                         SendFile_3(server);
+                     }
+                     else if (request.Equals("downloadFileFast"))
+                     {
+                         SendFile_2(server);
+                     }
+                    */
                     else
                     {
                         Console.Write("\nNo Action Found for this request!");
