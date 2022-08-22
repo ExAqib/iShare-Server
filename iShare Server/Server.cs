@@ -11,6 +11,7 @@ namespace iShare_Server
     partial class Server
     {
         public static ArrayList Connections = new ArrayList();
+        public static ArrayList MobileConnections = new ArrayList();
 
         static void Main(string[] args)
         {

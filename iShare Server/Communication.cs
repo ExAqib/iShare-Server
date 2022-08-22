@@ -10,7 +10,8 @@ namespace iShare_Server
     {
         Socket PC;
         Socket Mobile;
-        StreamReader PC_Stream;
+        StreamReader PC_StreamReader;
+        StreamWriter PC_StreamWriter;
         StreamWriter Mobile_Stream;
 
         EndPoint PcEndPoint;
@@ -23,9 +24,11 @@ namespace iShare_Server
 
             PcEndPoint = PC.RemoteEndPoint;
             MobileEndPoint = Mobile.RemoteEndPoint;
-            PC_Stream = new StreamReader(new NetworkStream(PC));
+            PC_StreamReader = new StreamReader(new NetworkStream(PC));
             Mobile_Stream = new StreamWriter(new NetworkStream(Mobile));
             Mobile_Stream.AutoFlush = true;
+            PC_StreamWriter = new StreamWriter(new NetworkStream(PC));
+            PC_StreamWriter.AutoFlush = true;
         }
 
         public bool sendMessages()
@@ -37,7 +40,7 @@ namespace iShare_Server
 
                 try
                 {
-                    message = PC_Stream.ReadLine();
+                    message = PC_StreamReader.ReadLine();
                     Console.Write("\nRECIEVED(" + message + ")MESSAGE");
 
 
@@ -77,7 +80,7 @@ namespace iShare_Server
                         return true;
 
                     }
-
+                  
                     else if (message == "FileStart")
                     {
                         sendFile();
@@ -125,6 +128,8 @@ namespace iShare_Server
             return false;
 
         }
+
+   
         private bool PcLeft(EndPoint Ep)
         {
             int Count = 0;
@@ -147,7 +152,7 @@ namespace iShare_Server
             Console.Write("\nMobile has left ");
             return false;
         }
-        private void InformClient(StreamWriter streamWriter)
+        private void InformClient (StreamWriter streamWriter)
         {
             try
             {
@@ -166,16 +171,16 @@ namespace iShare_Server
             Console.Write("\n Recieving file from mobile");
             NetworkStream networkStream = new NetworkStream(PC);
 
-            String FileName = PC_Stream.ReadLine();
+            String FileName = PC_StreamReader.ReadLine();
             Console.Write("\n Recieved FileName is " + FileName);
 
-            int bufferSize = int.Parse(PC_Stream.ReadLine());
+            int bufferSize = int.Parse(PC_StreamReader.ReadLine());
             Console.Write("\n Recieved Buffer Size: " + bufferSize);
 
-            int totalBytes = int.Parse(PC_Stream.ReadLine());
+            int totalBytes = int.Parse(PC_StreamReader.ReadLine());
             Console.Write("\ntotalBytes : " + totalBytes);
 
-            int halfData = int.Parse(PC_Stream.ReadLine());
+            int halfData = int.Parse(PC_StreamReader.ReadLine());
             Console.Write("\nhalfData : " + halfData);
 
             byte[] buffer = new Byte[bufferSize];
@@ -275,13 +280,13 @@ namespace iShare_Server
             Console.Write("\n transfer done");
 
         }
-        public void sendFile()
+        public  void sendFile()
         {
             int bytesReceived = 0;
-            int bufferSize = int.Parse(PC_Stream.ReadLine());
+            int bufferSize = int.Parse(PC_StreamReader.ReadLine());
             Console.Write("\nbuffer Size: " + bufferSize);
 
-            int totalBytes = int.Parse(PC_Stream.ReadLine());
+            int totalBytes = int.Parse(PC_StreamReader.ReadLine());
             Console.Write("\ntotalBytes : " + totalBytes);
 
             byte[] data = new byte[bufferSize];
@@ -290,12 +295,12 @@ namespace iShare_Server
             NetworkStream MobileNetworkStream = new NetworkStream(Mobile);
 
             int size;
-            int loop = 0;
+            int chunk = 0;
 
             while (bytesReceived < totalBytes)
             {
-                loop++;
-                Console.Write("\n\n loop " + loop);
+                chunk++;
+                Console.Write("\n\n sending chunk " + chunk);
 
                 size = PcNetworkStream.Read(data, 0, bufferSize);
                 bytesReceived += size;
@@ -312,5 +317,6 @@ namespace iShare_Server
             Console.Write("\n transfer done");
 
         }
+
     }
 }

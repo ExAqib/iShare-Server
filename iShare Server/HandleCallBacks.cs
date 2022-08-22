@@ -29,12 +29,19 @@ namespace iShare_Server
             string data = streamReader.ReadLine();
             Console.Write("\nConnected device is  " + data);
 
+
             if (data == "PC")
             {
                 AddCredentials();
+                Start();
             }
             else if (data == "MOBILE")
             {
+                string ID = streamReader.ReadLine();
+                string name = streamReader.ReadLine();
+
+                ClientData clientData = new ClientData(client, ID, null, name);
+                Server.MobileConnections.Add(clientData);
                 Start();
             }
             else
@@ -96,6 +103,64 @@ namespace iShare_Server
 
                 return 0;
             }*/
+
+        public void Start()
+        {
+            while (client.Connected)
+            {
+                Console.Write("\nServer Waiting for request to make connection");
+                try
+                {
+                    string request = streamReader.ReadLine();
+                    Console.Write("\nRecieved (for Connection)" + request + " Request");
+
+                    if (request == null)
+                    {
+                        Console.Write("\nNull Request. Client Left");
+                        client.Close();
+                        break;
+                    }
+                    else if (request == RequestCodes.findByIdPassword)
+                    {
+                        //HandleMobile();
+                        ConnectByID();
+
+                        return;
+                    }
+                    else if (request == RequestCodes.findByID)
+                    {
+                        ConnectByID();
+                        return;
+                    }
+                    else if (request == RequestCodes.SendFileToMobile)
+                    {
+                        string id = streamReader.ReadLine();
+                        SendFileToMobile(id, streamWriter);
+                    }
+                    else
+                    {
+                        Console.Write("\nNo Action Found for this request!");
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.Write("\nException " + e);
+                    client.Close();
+                    break;
+                }
+
+            }
+            try
+            {
+                client.Close();
+            }
+            catch (Exception)
+            {
+                //Client was already closed
+            }
+
+        }
 
         void HandleMobile()
         {
@@ -241,78 +306,111 @@ namespace iShare_Server
             Start();
         }
 
-        public void Start()
+        public void sendFileMobile(Socket PC,Socket Mobile)
         {
-            while (client.Connected)
+
+            NetworkStream PcNetworkStream = new NetworkStream(PC);
+            NetworkStream MobileNetworkStream = new NetworkStream(Mobile);
+            StreamReader streamReader = new StreamReader(PcNetworkStream);
+
+            int bytesReceived = 0;
+            int bufferSize = 2048 * 4;
+            //int bufferSize = int.Parse(PC_StreamReader.ReadLine());
+            Console.Write("\nReceiving file name ");
+
+            string fileName = streamReader.ReadLine();
+            Console.Write("\nfileName: " + fileName);
+
+            int totalBytes = int.Parse(streamReader.ReadLine());
+            Console.Write("\ntotalBytes : " + totalBytes);
+
+            if (bufferSize + bytesReceived > totalBytes)
             {
-                Console.Write("\nServer Waiting for request to make connection");
-                try
+                bufferSize = totalBytes - bytesReceived;
+                Console.Write("\n Changing buffer size to " + bufferSize);
+            }
+            byte[] data = new byte[bufferSize];
+
+
+            StreamWriter streamWriter = new StreamWriter(new NetworkStream(Mobile));
+
+            streamWriter.WriteLine(fileName);
+            Console.WriteLine($"\n Sending file name {fileName} to mobile");
+            streamWriter.Flush();
+
+            streamWriter.WriteLine(totalBytes);
+            Console.WriteLine($"\n Sending totalBytes {totalBytes}");
+            streamWriter.Flush();
+
+            int size;
+            int loop = 0;
+
+            while (bytesReceived < totalBytes)
+            {
+                loop++;
+                Console.Write("\n\n loop " + loop);
+
+                size = PcNetworkStream.Read(data, 0, bufferSize);
+                bytesReceived += size;
+                Console.Write("\n Recieved " + bytesReceived + " bytes" + "( " + size + " )");
+
+                MobileNetworkStream.Write(data, 0, size);
+                if (bufferSize + bytesReceived > totalBytes)
                 {
-                    string request = streamReader.ReadLine();
-                    Console.Write("\nRecieved (for Connection)" + request + " Request");
-
-                    if (request == null)
-                    {
-                        Console.Write("\nNull Request. Client Left");
-                        client.Close();
-                        break;
-                    }
-                    else if (request==RequestCodes.findByIdPassword)
-                    {
-                        //HandleMobile();
-                        ConnectByID();
-
-                        return;
-                        //ToDo: What to do next
-                    }else if (request==RequestCodes.findByID)
-                    {
-                        ConnectByID();
-                        return;
-                        //ToDo: What to do next
-                    }
-                   /* else if (request.Equals("driveDirectories"))
-                    {
-                        //First send driveDirectories message, then drive name (c:/) from client
-                        sendDriveDirectories(server);
-                    }
-                    else if (request.Equals("subDirectories"))
-                    {
-                        sendSubDirectories(server);
-                    }
-                    else if (request.Equals("downloadFile"))
-                    {
-                        SendFile_3(server);
-                    }
-                    else if (request.Equals("downloadFileFast"))
-                    {
-                        SendFile_2(server);
-                    }
-                   */
-                    else
-                    {
-                        Console.Write("\nNo Action Found for this request!");
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.Write("\nException " + e);
-                    client.Close();
-                    break;
+                    bufferSize = totalBytes - bytesReceived;
+                    Console.Write("\n Changing buffer size to " + bufferSize);
                 }
 
             }
-            try
-            {
-                client.Close();
-            }
-            catch (Exception)
-            {
-                //Client was already closed
-            }
+            Console.Write("\n transfer done");
 
         }
 
+        public void SendFileToMobile(string id, StreamWriter PC_Stream)
+        {
+            Console.WriteLine($"\n id received is {id} ");
+            int count = 0;
+            foreach (ClientData clientData in Server.MobileConnections)
+            {
+                Console.WriteLine($"\n clientData.GetID() is {clientData.GetID()}");
+
+                if (clientData.GetID() == id)
+                {
+                    try
+                    {
+                        //The id that was given by PC for sending file to mobile is found 
+                        Console.WriteLine($"\n The id that was given by PC for sending file to mobile is found  ");
+
+                        PC_Stream.WriteLine("found");
+                        StreamWriter sr = new StreamWriter(new NetworkStream(clientData.GetSocket()));
+
+                        //Inform mobile to receive file
+                        sr.WriteLine("RECEIVE_FILE");
+                        sr.Flush();
+                        sendFileMobile(client,clientData.GetSocket());
+                        return;
+
+                    }
+                    catch (IOException)
+                    {
+                        Console.Write("\n IOException occured. ");
+                        Server.MobileConnections.RemoveAt(count);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.Write("\n Exception occured. The z" + e);
+
+                    }
+                }
+                count++;
+            }
+
+            //The id that was given by PC for sending file to mobile is not found
+            Console.WriteLine($"\nThe id that was given by PC for sending file to mobile is not found  ");
+            PC_Stream.WriteLine("not_found");
+            PC_Stream.Flush();
+
+        }
 
     }
 
