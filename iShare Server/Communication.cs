@@ -80,7 +80,7 @@ namespace iShare_Server
                         return true;
 
                     }
-                  
+
                     else if (message == "FileStart")
                     {
                         sendFile();
@@ -129,7 +129,7 @@ namespace iShare_Server
 
         }
 
-   
+
         private bool PcLeft(EndPoint Ep)
         {
             int Count = 0;
@@ -152,7 +152,7 @@ namespace iShare_Server
             Console.Write("\nMobile has left ");
             return false;
         }
-        private void InformClient (StreamWriter streamWriter)
+        private void InformClient(StreamWriter streamWriter)
         {
             try
             {
@@ -280,7 +280,7 @@ namespace iShare_Server
             Console.Write("\n transfer done");
 
         }
-        public  void sendFile()
+        public void sendFile()
         {
             int bytesReceived = 0;
             int bufferSize = int.Parse(PC_StreamReader.ReadLine());

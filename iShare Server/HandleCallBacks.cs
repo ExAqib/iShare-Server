@@ -137,6 +137,18 @@ namespace iShare_Server
                         string id = streamReader.ReadLine();
                         SendFileToMobile(id, streamWriter);
                     }
+                    else if (request == RequestCodes.appVersion)
+                    {
+                        streamWriter.WriteLine(iShareVersions.iShare_Android_ver);
+                    }
+                    else if (request == RequestCodes.serverVersion)
+                    {
+                        streamWriter.WriteLine(iShareVersions.iShare_Server_ver);
+                    }
+                    else if (request == RequestCodes.desktopVersion)
+                    {
+                        streamWriter.WriteLine(iShareVersions.iShare_Desktop_ver);
+                    }
                     else
                     {
                         Console.Write("\nNo Action Found for this request!");
@@ -177,7 +189,7 @@ namespace iShare_Server
                     streamWriter.WriteLine("SUCCESS");
                     StartCommunication();
                 }
-               
+
             }
             catch (IOException e)
             {
@@ -196,7 +208,7 @@ namespace iShare_Server
             string Password = streamReader.ReadLine();
             string UniqueID = streamReader.ReadLine();
             string Name = streamReader.ReadLine();
-            Console.Write("\nID: " + ID + "\nPassword " + Password +  "\nName" + Name);
+            Console.Write("\nID: " + ID + "\nPassword " + Password + "\nName" + Name);
 
             ClientData clientData = new ClientData(client, ID, Password, Name);
             Server.Connections.Add(clientData);
@@ -225,7 +237,7 @@ namespace iShare_Server
                 if (communicate.sendMessages())
                 {
                     Console.WriteLine("\n communicate.sendMessages() has returned ");
-                   // HandleMobile();
+                    // HandleMobile();
                 }
             });
             PcToMobile.Start();
@@ -277,7 +289,7 @@ namespace iShare_Server
 
             foreach (ClientData clientData in Server.Connections)
             {
-                if (clientData.GetID()==ID)
+                if (clientData.GetID() == ID)
                 {
                     try
                     {
@@ -285,7 +297,7 @@ namespace iShare_Server
                         sr.WriteLine("$PING$");
                         sr.Flush();
                         streamWriter.WriteLine("SUCCESS");
-                        PcSocket= clientData.GetSocket();
+                        PcSocket = clientData.GetSocket();
                         StartCommunication();
                         return;
                     }
@@ -306,7 +318,7 @@ namespace iShare_Server
             Start();
         }
 
-        public void sendFileMobile(Socket PC,Socket Mobile)
+        public void sendFileMobile(Socket PC, Socket Mobile)
         {
 
             NetworkStream PcNetworkStream = new NetworkStream(PC);
@@ -387,7 +399,7 @@ namespace iShare_Server
                         //Inform mobile to receive file
                         sr.WriteLine("RECEIVE_FILE");
                         sr.Flush();
-                        sendFileMobile(client,clientData.GetSocket());
+                        sendFileMobile(client, clientData.GetSocket());
                         return;
 
                     }

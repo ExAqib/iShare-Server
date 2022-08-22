@@ -7,22 +7,22 @@ using System.Xml.Linq;
 
 namespace iShare_Server
 {
-    internal class iShareVersions
+    public static class iShareVersions
     {
-        private const string iShare_Server = "1.0";
-        private const string iShare_Desktop = "1.0";
-        private const string iShare_Android = "1.0";
+        private static string iShare_Server = "1.0";
+        private static string iShare_Desktop = "1.0";
+        private static string iShare_Android = "1.0";
 
-        public string iShare_Server_ver
+        public static string iShare_Server_ver
         {
             get { return iShare_Server; }
         }
 
-        public string iShare_Desktop_ver
+        public static string iShare_Desktop_ver
         {
             get { return iShare_Desktop; }
         }
-        public string iShare_Android_ver
+        public static string iShare_Android_ver
         {
             get { return iShare_Android; }
         }

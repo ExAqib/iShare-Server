@@ -11,7 +11,7 @@ namespace iShare_Server
         string Password;
         string Name;
         EndPoint endPoint;
-        public ClientData(Socket pC, string iD, string password ,string name)
+        public ClientData(Socket pC, string iD, string password, string name)
         {
             PC = pC;
             ID = iD;
@@ -40,7 +40,7 @@ namespace iShare_Server
         {
             return PC;
         }
-      
+
         public string GetName()
         {
             return Name;

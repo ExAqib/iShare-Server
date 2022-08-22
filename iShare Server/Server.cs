@@ -23,7 +23,8 @@ namespace iShare_Server
             int PORT_NUM = 9999;
             TcpListener tcpListener;
 
-            while(true){
+            while (true)
+            {
                 try
                 {
                     tcpListener = StartServer(PORT_NUM);
@@ -67,29 +68,29 @@ namespace iShare_Server
                 }
 
             }
-            
-           
+
+
         }
         private static TcpListener StartServer(int PORT_NUM)
         {
-              string IP_ADDRESS = "0.0.0.0";
-                string hostName = Dns.GetHostName();
+            string IP_ADDRESS = "0.0.0.0";
+            string hostName = Dns.GetHostName();
 
-                var host = Dns.GetHostEntry(hostName);
-                foreach (var ip in host.AddressList)
+            var host = Dns.GetHostEntry(hostName);
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    if (ip.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        IP_ADDRESS = ip.ToString();
-                    }
+                    IP_ADDRESS = ip.ToString();
                 }
+            }
 
-                TcpListener tcpListener = new TcpListener(IPAddress.Any, PORT_NUM);
-                tcpListener.Start();
-                PORT_NUM = ((IPEndPoint)tcpListener.LocalEndpoint).Port;
-                Console.Write("\nName: " + hostName + "\nIP Address " + IP_ADDRESS + "\nPort Num:  " + PORT_NUM);
-                return tcpListener;
-                    
+            TcpListener tcpListener = new TcpListener(IPAddress.Any, PORT_NUM);
+            tcpListener.Start();
+            PORT_NUM = ((IPEndPoint)tcpListener.LocalEndpoint).Port;
+            Console.Write("\nName: " + hostName + "\nIP Address " + IP_ADDRESS + "\nPort Num:  " + PORT_NUM);
+            return tcpListener;
+
 
         }
 
