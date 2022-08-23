@@ -33,7 +33,7 @@ namespace iShare_Server
             if (data == "PC")
             {
                 AddCredentials();
-                Start();
+                //Start();
             }
             else if (data == "MOBILE")
             {
