@@ -14,5 +14,6 @@ namespace iShare_Server
         public const string appVersion = "APP_VER";
         public const string serverVersion = "SERVER_VER";
         public const string desktopVersion = "DESKTOP_VER";
+        public const string startingSharingData = "_starting_sharing_data_";
     }
 }

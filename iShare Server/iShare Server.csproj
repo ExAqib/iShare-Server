@@ -50,6 +50,7 @@
     <Compile Include="Communication.cs" />
     <Compile Include="HandleCallBacks.cs" />
     <Compile Include="iShareVersions.cs" />
+    <Compile Include="PcStatus.cs" />
     <Compile Include="RequestCodes.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

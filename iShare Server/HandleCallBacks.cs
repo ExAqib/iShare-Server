@@ -33,7 +33,7 @@ namespace iShare_Server
             if (data == "PC")
             {
                 AddCredentials();
-                //Start();
+                 Start();
             }
             else if (data == "MOBILE")
             {
@@ -148,6 +148,11 @@ namespace iShare_Server
                     else if (request == RequestCodes.desktopVersion)
                     {
                         streamWriter.WriteLine(iShareVersions.iShare_Desktop_ver);
+                    }
+                    else if (request == RequestCodes.startingSharingData)
+                    {
+                        PcStatus.PcNotReady = false;
+                        return;
                     }
                     else
                     {
@@ -296,9 +301,33 @@ namespace iShare_Server
                         StreamWriter sr = new StreamWriter(new NetworkStream(clientData.GetSocket()));
                         sr.WriteLine("$PING$");
                         sr.Flush();
-                        streamWriter.WriteLine("SUCCESS");
-                        PcSocket = clientData.GetSocket();
-                        StartCommunication();
+
+                        if (PcStatus.PcCanSendFile)
+                        {
+                            sr.WriteLine("start_sharing");
+                            sr.Flush();
+
+                            PcStatus.PcCanSendFile = false;
+
+                            streamWriter.WriteLine("SUCCESS");
+                            PcSocket = clientData.GetSocket();
+                            while (PcStatus.PcNotReady)
+                            {
+
+                            }
+                            PcStatus.PcNotReady = true;
+                            StartCommunication();
+                        }
+                        else
+                        {
+                            streamWriter.WriteLine("SUCCESS");
+                            PcSocket = clientData.GetSocket();
+                            StartCommunication();
+
+                        }
+
+
+
                         return;
                     }
                     catch (IOException)
@@ -382,7 +411,47 @@ namespace iShare_Server
         {
             Console.WriteLine($"\n id received is {id} ");
             int count = 0;
-            foreach (ClientData clientData in Server.MobileConnections)
+            ClientData clientData;
+            for (int i = 0; i < Server.MobileConnections.Count; i++)
+            {
+                clientData = (ClientData)Server.MobileConnections[i];
+                Console.WriteLine($"\n clientData.GetID() is {clientData.GetID()}");
+
+                if (clientData.GetID() == id)
+                {
+                    try
+                    {
+                        //The id that was given by PC for sending file to mobile is found 
+                        Console.WriteLine($"\n The id that was given by PC for sending file to mobile is found  ");
+
+                        //Inform mobile to receive file
+                        StreamWriter sr = new StreamWriter(new NetworkStream(clientData.GetSocket()));
+                        sr.WriteLine("RECEIVE_FILE");
+                        sr.Flush();
+
+                        //Inform PC to receive file
+                        PC_Stream.WriteLine("found");
+
+                        sendFileMobile(client, clientData.GetSocket());
+                        return;
+
+                    }
+                    catch (IOException)
+                    {
+                        Console.Write("\n IOException occured. ");
+                        Server.MobileConnections.RemoveAt(i);
+                        i--;
+
+                    }
+                    catch (Exception e)
+                    {
+                        Console.Write("\n Exception occured. The z" + e);
+
+                    }
+                }
+
+            }
+           /* foreach (ClientData clientData in Server.MobileConnections)                    
             {
                 Console.WriteLine($"\n clientData.GetID() is {clientData.GetID()}");
 
@@ -415,7 +484,7 @@ namespace iShare_Server
                     }
                 }
                 count++;
-            }
+            }*/
 
             //The id that was given by PC for sending file to mobile is not found
             Console.WriteLine($"\nThe id that was given by PC for sending file to mobile is not found  ");
